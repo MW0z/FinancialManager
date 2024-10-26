@@ -8,6 +8,7 @@ import hashlib
 class LoginScreen(BoxLayout):
     def __init__(self, **kwargs):
         super(LoginScreen, self).__init__(**kwargs)
+        #self.layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
         self.orientation = "vertical"
         self.padding = 20
         self.spacing = 10
@@ -15,11 +16,11 @@ class LoginScreen(BoxLayout):
         self.login_button = Button(text="Login", size_hint=(1, 0.5))
         self.login_button.bind(on_press=self.login_screen)
         self.add_widget(self.login_button)
-
+    
         self.register_button = Button(text="Register", size_hint=(1, 0.5))
-        self.login_button.bind(on_press=self.register_screen)
-        self.add_widget(self.login_button)
-
+        self.register_button.bind(on_press=self.register_screen)
+        self.add_widget(self.register_button)
+    
 
 
 
@@ -52,7 +53,29 @@ class LoginScreen(BoxLayout):
     """
 
     def login_screen(self,instance):
-        pass
+        self.orientation = "vertical"
+        self.padding = 20
+        self.spacing = 10
+        
+        # Title label
+        self.add_widget(Label(text="Login", font_size=32, color=(0, 0, 0, 1)))
+        
+        # Email input
+        self.email_input = TextInput(hint_text="Enter email", multiline=False)
+        self.add_widget(self.email_input)
+        
+        # Password input
+        self.password_input = TextInput(hint_text="Enter password", multiline=False, password=True)
+        self.add_widget(self.password_input)
+        
+        # Login button
+        self.login_button = Button(text="Login", size_hint=(1, 0.5))
+        self.login_button.bind(on_press=self.validate_login)
+        self.add_widget(self.login_button)
+        
+        # Status label
+        self.status_label = Label(text="", color=(1, 0, 0, 1))
+        self.add_widget(self.status_label)
     def register_screen(self,instance):
         pass
 

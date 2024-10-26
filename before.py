@@ -14,7 +14,7 @@ class LoginScreen(BoxLayout):
         self.spacing = 10
         
         # Title label
-        self.add_widget(Label(text="Hello", font_size=32, color=(0, 0, 0, 1)))
+        self.add_widget(Label(text="Login", font_size=32, color=(0, 0, 0, 1)))
         
         # Email input
         self.email_input = TextInput(hint_text="Enter email", multiline=False)
