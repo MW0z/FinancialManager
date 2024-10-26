@@ -72,7 +72,7 @@ class LoginScreen(Screen):
                     if email == stored_email and auth_hash == stored_password:
                         self.status_label.text = "Logged in Successfully!"
                         self.status_label.color = (0, 1, 0, 1)  # Green for success
-                        self.manager.current = "days"
+                        self.manager.current = "save"
                         flag = False
                         break
                     else:
@@ -165,16 +165,16 @@ class RegisterScreen(Screen):
         self.manager.current = "login"
 
 #Define the DayScreen Screen
-class DayScreen(Screen):
+class WeeklySave(Screen):
     def __init__(self, **kwargs):
-        super(DayScreen, self).__init__(**kwargs)
+        super(WeeklySave, self).__init__(**kwargs)
         layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
 
         # Title label
         layout.add_widget(Label(text="How much would you like to save per week?", font_size=32))  # TITLE
 
         # Slider to choose days
-        self.slider = Slider(min=0, max=100, value=50)
+        self.slider = Slider(min=0, max=50, value=25)
         layout.add_widget(self.slider)
 
         # Label to display slider value
@@ -184,14 +184,53 @@ class DayScreen(Screen):
         # Bind the slider's value to the label
         self.slider.bind(value=self.on_value_change)
 
+        self.next = Button(text="Next")
+        self.next.bind(on_press=self.go_to_dayScreen)
+        layout.add_widget(self.next)
+
+
+
+
+
+
+
         self.add_widget(layout)  # Add the layout to the screen
 
     def on_value_change(self, instance, value):
         # Update label with the current slider value
-        self.value_label.text = f"Days to save: {int(value)}"
+        self.value_label.text = f"Amount to save: £{int(value)}" #################### Weekly Save
+
+    def go_to_dayScreen(self,instance):
+        self.manager.current = "days"
+
+class DayScreen(Screen):
+    def __init__(self, **kwargs):
+        super(DayScreen, self).__init__(**kwargs)
+        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+
+        layout.add_widget(Label(text="On what days would you like to save?", font_size=32))  # TITLE
+
+        self.next = Button(text="Next")
+        self.next.bind(on_press=self.go_to_coffee_screen)
+        layout.add_widget(self.next)
+
+        self.add_widget(layout)
+    def go_to_coffee_screen(self,instance):
+        self.manager.current = "coffee"
 
 
+class CoffeeScreen(Screen):
+    def __init__(self, **kwargs):
+        super(CoffeeScreen, self).__init__(**kwargs)
+        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
 
+        self.next = Button(text="Next")
+        self.next.bind(on_press=self.go_to_smoke_screen)
+        layout.add_widget(self.next)
+
+        self.add_widget(layout)
+    def go_to_smoke_screen(self,instance):
+        self.manager.current = "smoke"
 
 
 
@@ -205,11 +244,12 @@ class LoginApp(App):
         # Add both screens to the manager
         sm.add_widget(LoginScreen(name="login"))
         sm.add_widget(RegisterScreen(name="register"))
-
-        sm.add_widget(DayScreen(name="days"))
-        """
+        sm.add_widget(WeeklySave(name = "save"))
+        sm.add_widget(DayScreen(name="days"))        
         sm.add_widget(CoffeeScreen(name= "coffee"))
-        sm.add_widget(SmokeScreen(name="smoke"))
+        #sm.add_widget(SmokeScreen(name="smoke"))
+
+        """
         sm.add_widget(EatOutScreen(name="eat_out"))
         sm.add_widget(TransportScreen(name = "transport"))
         sm.add_widget(WeeklyGoalScreen(name = "weekly_goal"))
