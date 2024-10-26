@@ -6,24 +6,7 @@ from kivy.uix.button import Button
 import hashlib
 
 class LoginScreen(BoxLayout):
-    def __init__(self, **kwargs):
-        super(LoginScreen, self).__init__(**kwargs)
-        self.orientation = "vertical"
-        self.padding = 20
-        self.spacing = 10
-
-        self.login_button = Button(text="Login", size_hint=(1, 0.5))
-        self.login_button.bind(on_press=self.login_screen)
-        self.add_widget(self.login_button)
-
-        self.register_button = Button(text="Register", size_hint=(1, 0.5))
-        self.login_button.bind(on_press=self.register_screen)
-        self.add_widget(self.login_button)
-
-
-
-
-    """
+    
     def __init__(self, **kwargs):
         super(LoginScreen, self).__init__(**kwargs)
         self.orientation = "vertical"
@@ -31,7 +14,7 @@ class LoginScreen(BoxLayout):
         self.spacing = 10
         
         # Title label
-        self.add_widget(Label(text="Login", font_size=32, color=(0, 0, 0, 1)))
+        self.add_widget(Label(text="Hello", font_size=32, color=(0, 0, 0, 1)))
         
         # Email input
         self.email_input = TextInput(hint_text="Enter email", multiline=False)
@@ -49,13 +32,6 @@ class LoginScreen(BoxLayout):
         # Status label
         self.status_label = Label(text="", color=(1, 0, 0, 1))
         self.add_widget(self.status_label)
-    """
-
-    def login_screen(self,instance):
-        pass
-    def register_screen(self,instance):
-        pass
-
     
     def validate_login(self, instance):
         email = self.email_input.text
