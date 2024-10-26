@@ -57,17 +57,29 @@ class LoginScreen(Screen):
         try:
             # Read the stored credentials
             with open("credentials.txt", "r") as f:
-                stored_email, stored_password = f.read().split(" ")
-            
-            # Verify email and password
-            if email == stored_email and auth_hash == stored_password:
-                self.status_label.text = "Logged in Successfully!"
-                self.status_label.color = (0, 1, 0, 1)  # Green for success
-                time.sleep(1)
-                #/We need to go to next screen.
-            else:
-                self.status_label.text = "Invalid email or password!"
-                self.status_label.color = (1, 0, 0, 1)  # Red for failure
+                list_of_records = f.read().split("\n")
+                print(list_of_records)
+
+                for i in range (len(list_of_records)-1):
+                    co_list_of_records = list_of_records[i].split(" ")
+                    print(co_list_of_records)
+                    stored_email = co_list_of_records[0]
+                    print(stored_email)
+                    stored_password = co_list_of_records[1]
+                    print(stored_password)
+                    print(auth_hash)
+
+                    if email == stored_email and auth_hash == stored_password:
+                        self.status_label.text = "Logged in Successfully!"
+                        self.status_label.color = (0, 1, 0, 1)  # Green for success
+                        self.manager.current = "days"
+                        flag = False
+                        break
+                    else:
+                        flag = True
+                if flag == True:
+                    self.status_label.text = "Invalid email or password!"
+                    self.status_label.color = (1, 0, 0, 1)  # Red for failure
         
         except FileNotFoundError:
             self.status_label.text = "No credentials found. Please register first."
