@@ -3,6 +3,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.uix.image import Image
+from kivy.uix.progressbar import ProgressBar
+
 from kivy.graphics import Ellipse, Color
 
 from kivy.uix.widget import Widget
@@ -13,6 +16,20 @@ from kivy.uix.slider import Slider
 from kivy.uix.screenmanager import ScreenManager, Screen
 import hashlib
 import time
+import random
+from kivy.clock import Clock
+from datetime import datetime
+
+
+SAVING_CHALLENGES = [
+    "Save £5 every day this week.",
+    "Skip your daily coffee and save £3.",
+    "Save all your £1 coins this week.",
+    "Cook at home instead of eating out for 3 days.",
+    "Set aside £10 for every workout you complete.",
+    "Limit your online shopping for a week.",
+    "Save £1 for every time you skip a snack."
+]
 
 
 
@@ -272,36 +289,6 @@ class DayScreen(Screen):
         
         self.manager.current = "coffee"
 
-    
-
-"""
-class CoffeeScreen(Screen):
-    def __init__(self, **kwargs):
-        super(CoffeeScreen, self).__init__(**kwargs)
-        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
-        ##layout2 = BoxLayout(orientation="horizontal", padding=20, spacing=10)
-
-        layout.add_widget(Label(text="Do you drink coffee?", font_size=32))  # TITLE
-
-        layout2 = BoxLayout(orientation="vertical", size_hint=(1, None), height=100)
-        
-
-        self.yes = Button(text="Yes")
-        self.yes.bind(on_press=self.go_to_smoke_screen)
-        layout2.add_widget(self.yes)
-
-        ### IF YES IS CLICKED Add this info to list SO COFFEEE CAN BE SAVEDDDD
-
-        self.no = Button(text="No")
-        self.no.bind(on_press=self.go_to_smoke_screen)
-        layout2.add_widget(self.no)
-
-        self.add_widget(layout)
-        self.add_widget(layout2)
-    def go_to_smoke_screen(self,instance):
-        self.manager.current = "smoke"
-"""
-
 class CoffeeScreen(Screen):
     def __init__(self, **kwargs):
         super(CoffeeScreen, self).__init__(**kwargs)
@@ -312,6 +299,9 @@ class CoffeeScreen(Screen):
         
         # Horizontal layout for buttons
         layout2 = BoxLayout(orientation="horizontal", size_hint=(1, None), height=100, spacing=10)
+
+        cof_image = Image(source="coffee.png", size_hint=(1, 0.6))  # Adjust size_hint as needed
+        layout.add_widget(cof_image)  # Add the image widget to the layout
         
         # "Yes" button with oval shape
         self.yes = Button(text="Yes", size_hint=(0.5, 1), background_normal='', background_color=(0.3, 0.6, 1, 1))
@@ -331,6 +321,7 @@ class CoffeeScreen(Screen):
 
     def go_to_smoke_screen(self, instance):
         self.manager.current = "smoke"
+      
 
 class SmokeScreen(Screen):
     def __init__(self, **kwargs):
@@ -340,10 +331,13 @@ class SmokeScreen(Screen):
         layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
         layout.add_widget(Label(text="Do you drink smoke?", font_size=32))  # Title
         
+        # Add the image to the layout
+        cig_image = Image(source="cig2.png", size_hint=(1, 0.6))  # Adjust size_hint as needed
+        layout.add_widget(cig_image)  # Add the image widget to the layout
+        
         # Horizontal layout for buttons
         layout2 = BoxLayout(orientation="horizontal", size_hint=(1, None), height=100, spacing=10)
-        
-        
+
         # "Yes" button with oval shape
         self.yes = Button(text="Yes", size_hint=(0.5, 1), background_normal='', background_color=(0.3, 0.6, 1, 1))
         self.yes.radius = [50, 50, 50, 50]
@@ -356,12 +350,13 @@ class SmokeScreen(Screen):
         self.no.bind(on_press=self.go_to_eat_out)
         layout2.add_widget(self.no)
         
-        # Add the question layout and button layout to the screen
+        # Add the button layout to the main layout
         layout.add_widget(layout2)
         self.add_widget(layout)
 
     def go_to_eat_out(self, instance):
         self.manager.current = "eat_out"
+
 
 
 
@@ -375,6 +370,9 @@ class EatOutScreen(Screen):
         
         # Horizontal layout for buttons
         layout2 = BoxLayout(orientation="horizontal", size_hint=(1, None), height=100, spacing=10)
+
+        burger_image = Image(source="burger.png", size_hint=(1, 0.6))  # Adjust size_hint as needed
+        layout.add_widget(burger_image)  # Add the image widget to the layout
         
         # "Yes" button with oval shape
         self.yes = Button(text="Yes", size_hint=(0.5, 1), background_normal='', background_color=(0.3, 0.6, 1, 1))
@@ -396,6 +394,73 @@ class EatOutScreen(Screen):
         self.manager.current = "home"
 
 
+class HomeScreen(Screen):
+    def __init__(self, **kwargs):
+        super(HomeScreen, self).__init__(**kwargs)
+        self.daystreak = 12
+        self.moneys = 13
+        # Set up the layout and widgets
+        self.layout = BoxLayout(orientation="vertical", padding=40, spacing=10)
+        self.layout.add_widget(Label(text="Streak: " + str(self.daystreak) + " days", font_size = 45, halign = "right" ))
+        img = Image(source = "fire.png", size_hint = (1, 0.6))
+        self.layout.add_widget(img)
+        self.layout.add_widget(Label(text="Savings: £" + str(13), font_size = 45, halign = "right" ))
+
+        # Set the target and current progress values
+        self.aim = 50
+        self.current = 5
+        self.count = 0
+        
+        # Create the ProgressBar and add it to the layout once
+        self.progress_bar = ProgressBar(max=self.aim, value=self.count)
+        self.layout.add_widget(self.progress_bar)
+
+        # Add the layout to the screen's widget tree
+        self.add_widget(self.layout)
+
+    def on_enter(self):
+        # Schedule the progress bar update when the screen is displayed
+        Clock.schedule_interval(self.update_progress, 0.15)
+
+    def update_progress(self, dt):
+        # Increment the progress bar's value by 1 each update
+        if self.count < self.current:
+            self.count += 1
+            self.progress_bar.value = self.count
+        else:
+            # Stop updating when the progress reaches the current value
+            Clock.unschedule(self.update_progress)
+
+
+class ChallengeScreen(Screen):
+    def __init__(self, **kwargs):
+        super(ChallengeScreen, self).__init__(**kwargs)
+        
+        # Vertical layout for the challenge display
+        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+        
+        # Title label
+        layout.add_widget(Label(text="Today's Saving Challenge", font_size=32))
+        
+        # Challenge label
+        self.challenge_label = Label(text=self.get_daily_challenge(), font_size=24)
+        layout.add_widget(self.challenge_label)
+        
+        # Button to go back to the previous screen
+        back_button = Button(text="Back", size_hint=(0.5, 0.1))
+        back_button.bind(on_press=self.go_back)
+        layout.add_widget(back_button)
+
+        self.add_widget(layout)
+
+    def get_daily_challenge(self):
+        # Generate a challenge based on today's date
+        today = datetime.now().date()  # Get today's date
+        random.seed(today.toordinal())  # Use the ordinal value of the date as the seed
+        return random.choice(SAVING_CHALLENGES)
+
+    def go_back(self, instance):
+        self.manager.current = "days"  # Change this to your desired previous screen
 
 
 
@@ -414,7 +479,8 @@ class LoginApp(App):
         sm.add_widget(CoffeeScreen(name= "coffee"))
         sm.add_widget(SmokeScreen(name="smoke"))
         sm.add_widget(EatOutScreen(name="eat_out"))        
-        #sm.add_widget(HomeScreen(name = "home_screen"))
+        sm.add_widget(HomeScreen(name = "home"))
+        sm.add_widget(ChallengeScreen(name = "challenge"))
 
         
         return sm
