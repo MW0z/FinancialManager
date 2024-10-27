@@ -192,9 +192,9 @@ class WeeklySave(Screen):
         layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
 
         # Title label
-        layout.add_widget(Label(text="How much would you like to save per week?", font_size=32))  # TITLE
+        layout.add_widget(Label(text="How much would you like to save per week?", font_size=32))
 
-        # Slider to choose days
+        # Slider to choose amount to save
         self.slider = Slider(min=0, max=50, value=25)
         layout.add_widget(self.slider)
 
@@ -205,17 +205,27 @@ class WeeklySave(Screen):
         # Bind the slider's value to the label
         self.slider.bind(value=self.on_value_change)
 
+        # Next button
         self.next = Button(text="Next")
+        self.next.bind(on_press=self.change_file)
         self.next.bind(on_press=self.go_to_dayScreen)
         layout.add_widget(self.next)
-        self.add_widget(layout)  # Add the layout to the screen
+
+        self.add_widget(layout)
 
     def on_value_change(self, instance, value):
         # Update label with the current slider value
-        self.value_label.text = f"Amount to save: £{int(value)}" #################### Weekly Save
+        self.value_label.text = f"Amount to save: £{int(value)}"
 
-    def go_to_dayScreen(self,instance):
+    def change_file(self, instance):
+        # Write the current slider value to the file
+        with open("WeeklySave.txt", "w") as f:
+            f.write(f"{int(self.slider.value)}")  # Convert the slider value to string and write
+        # File automatically closes after 'with' block
+
+    def go_to_dayScreen(self, instance):
         self.manager.current = "days"
+
 
 
 class DayScreen(Screen):
@@ -329,7 +339,7 @@ class SmokeScreen(Screen):
         
         # Vertical layout for the question
         layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
-        layout.add_widget(Label(text="Do you drink smoke?", font_size=32))  # Title
+        layout.add_widget(Label(text="Do you smoke?", font_size=32))  # Title
         
         # Add the image to the layout
         cig_image = Image(source="cig2.png", size_hint=(1, 0.6))  # Adjust size_hint as needed
@@ -398,18 +408,26 @@ class HomeScreen(Screen):
     def __init__(self, **kwargs):
         super(HomeScreen, self).__init__(**kwargs)
         self.daystreak = 12
-        self.moneys = 13
+        self.current = 13
+        self.aim = 15 ## GOAL
         # Set up the layout and widgets
         self.layout = BoxLayout(orientation="vertical", padding=40, spacing=10)
         self.layout.add_widget(Label(text="Streak: " + str(self.daystreak) + " days", font_size = 45, halign = "right" ))
         img = Image(source = "fire.png", size_hint = (1, 0.6))
         self.layout.add_widget(img)
-        self.layout.add_widget(Label(text="Savings: £" + str(13), font_size = 45, halign = "right" ))
+        self.layout.add_widget(Label(text="Savings: £" + str(self.current), font_size = 45, halign = "right" ))
 
         # Set the target and current progress values
-        self.aim = 50
-        self.current = 5
-        self.count = 0
+        print("hel")
+
+        with open("WeeklySave.txt", "r") as f:
+            self.aim = f.readline().strip()
+        print(self.aim)
+        print("hello")
+        
+
+
+        self.count = 0 ## THE START TO BUILD UP THE LOADING
         
         # Create the ProgressBar and add it to the layout once
         self.progress_bar = ProgressBar(max=self.aim, value=self.count)
@@ -420,7 +438,7 @@ class HomeScreen(Screen):
 
     def on_enter(self):
         # Schedule the progress bar update when the screen is displayed
-        Clock.schedule_interval(self.update_progress, 0.15)
+        Clock.schedule_interval(self.update_progress, 0.10)
 
     def update_progress(self, dt):
         # Increment the progress bar's value by 1 each update
@@ -430,7 +448,13 @@ class HomeScreen(Screen):
         else:
             # Stop updating when the progress reaches the current value
             Clock.unschedule(self.update_progress)
+    
 
+
+
+
+    def go_to_challenge(self, instance):
+        self.manager.current = "challenge"
 
 class ChallengeScreen(Screen):
     def __init__(self, **kwargs):
