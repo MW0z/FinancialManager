@@ -3,6 +3,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.graphics import Ellipse, Color
 
 from kivy.uix.widget import Widget
 from kivy.properties import ObjectProperty
@@ -12,6 +13,8 @@ from kivy.uix.slider import Slider
 from kivy.uix.screenmanager import ScreenManager, Screen
 import hashlib
 import time
+
+
 
 
 # Define the Login Screen
@@ -48,6 +51,7 @@ class LoginScreen(Screen):
         self.add_widget(layout)
 
     def validate_login(self, instance):
+      
         email = self.email_input.text
         password = self.password_input.text
         
@@ -178,7 +182,7 @@ class WeeklySave(Screen):
         layout.add_widget(self.slider)
 
         # Label to display slider value
-        self.value_label = Label(text=f"Days to save: {int(self.slider.value)}")
+        self.value_label = Label(text=f"Amount to save: £{int(self.slider.value)}")
         layout.add_widget(self.value_label)
 
         # Bind the slider's value to the label
@@ -187,13 +191,6 @@ class WeeklySave(Screen):
         self.next = Button(text="Next")
         self.next.bind(on_press=self.go_to_dayScreen)
         layout.add_widget(self.next)
-
-
-
-
-
-
-
         self.add_widget(layout)  # Add the layout to the screen
 
     def on_value_change(self, instance, value):
@@ -203,34 +200,202 @@ class WeeklySave(Screen):
     def go_to_dayScreen(self,instance):
         self.manager.current = "days"
 
+
 class DayScreen(Screen):
     def __init__(self, **kwargs):
         super(DayScreen, self).__init__(**kwargs)
+        
+        # Main vertical layout
         layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
 
-        layout.add_widget(Label(text="On what days would you like to save?", font_size=32))  # TITLE
+        # Title label
+        layout.add_widget(Label(text="On what days would you like to save?", font_size=32, halign="center"))
 
-        self.next = Button(text="Next")
+        # Centered container for the day buttons
+        day_container = BoxLayout(orientation="vertical", size_hint=(1, None), height=100)
+        
+        # Horizontal layout for day buttons, centered
+        day_layout = BoxLayout(orientation="horizontal", spacing=5, size_hint=(None, None), width=400)
+        day_layout.pos_hint = {"center_x": 0.5}  # Center horizontally
+        
+        # List of days
+        days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+        # Track selected days
+        self.selected_days = set()
+        
+        # Create buttons for each day
+        for day in days:
+            day_button = Button(
+                text=day,
+                size_hint=(None, None),
+                size=(50, 50),
+                background_normal="",
+                background_color=(0.7, 0.7, 0.7, 1)  # Grey for unselected
+            )
+            day_button.bind(on_press=self.toggle_day)
+            day_layout.add_widget(day_button)
+        
+        # Add day selection layout to the day container
+        day_container.add_widget(day_layout)
+        layout.add_widget(day_container)  # Center day buttons vertically
+
+        # Next button to proceed to CoffeeScreen, centered horizontally
+        self.next = Button(text="Next", size_hint=(None, None), size=(100, 50), pos_hint={"center_x": 0.5})
         self.next.bind(on_press=self.go_to_coffee_screen)
         layout.add_widget(self.next)
 
+        # Add the layout to the screen
         self.add_widget(layout)
-    def go_to_coffee_screen(self,instance):
+    
+    def toggle_day(self, instance):
+    # Toggle day selection
+        if instance in self.selected_days:
+            instance.background_color = (0.7, 0.7, 0.7, 1)  # Unselected color (grey)
+            self.selected_days.remove(instance)
+        else:
+            instance.background_color = (0.3, 0.7, 0.3, 1)  # Selected color (green)
+            self.selected_days.add(instance)
+
+    # Print or use selected days as needed
+        selected_days_text = [btn.text for btn in self.selected_days]
+        print("Selected days:", selected_days_text)
+        
+        f = open("days.txt","w")
+        for i in range (len(selected_days_text)):
+            f.write(selected_days_text[i]+ "\n")
+        f.close()
+
+
+
+    def go_to_coffee_screen(self, instance):
+        
         self.manager.current = "coffee"
 
+    
 
+"""
 class CoffeeScreen(Screen):
     def __init__(self, **kwargs):
         super(CoffeeScreen, self).__init__(**kwargs)
         layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+        ##layout2 = BoxLayout(orientation="horizontal", padding=20, spacing=10)
 
-        self.next = Button(text="Next")
-        self.next.bind(on_press=self.go_to_smoke_screen)
-        layout.add_widget(self.next)
+        layout.add_widget(Label(text="Do you drink coffee?", font_size=32))  # TITLE
+
+        layout2 = BoxLayout(orientation="vertical", size_hint=(1, None), height=100)
+        
+
+        self.yes = Button(text="Yes")
+        self.yes.bind(on_press=self.go_to_smoke_screen)
+        layout2.add_widget(self.yes)
+
+        ### IF YES IS CLICKED Add this info to list SO COFFEEE CAN BE SAVEDDDD
+
+        self.no = Button(text="No")
+        self.no.bind(on_press=self.go_to_smoke_screen)
+        layout2.add_widget(self.no)
 
         self.add_widget(layout)
+        self.add_widget(layout2)
     def go_to_smoke_screen(self,instance):
         self.manager.current = "smoke"
+"""
+
+class CoffeeScreen(Screen):
+    def __init__(self, **kwargs):
+        super(CoffeeScreen, self).__init__(**kwargs)
+        
+        # Vertical layout for the question
+        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+        layout.add_widget(Label(text="Do you drink coffee?", font_size=32))  # Title
+        
+        # Horizontal layout for buttons
+        layout2 = BoxLayout(orientation="horizontal", size_hint=(1, None), height=100, spacing=10)
+        
+        # "Yes" button with oval shape
+        self.yes = Button(text="Yes", size_hint=(0.5, 1), background_normal='', background_color=(0.3, 0.6, 1, 1))
+        self.yes.radius = [50, 50, 50, 50]
+        self.yes.bind(on_press=self.go_to_smoke_screen)
+        layout2.add_widget(self.yes)
+        
+        # "No" button with oval shape
+        self.no = Button(text="No", size_hint=(0.5, 1), background_normal='', background_color=(1, 0.5, 0.5, 1))
+        self.no.radius = [50, 50, 50, 50]
+        self.no.bind(on_press=self.go_to_smoke_screen)
+        layout2.add_widget(self.no)
+        
+        # Add the question layout and button layout to the screen
+        layout.add_widget(layout2)
+        self.add_widget(layout)
+
+    def go_to_smoke_screen(self, instance):
+        self.manager.current = "smoke"
+
+class SmokeScreen(Screen):
+    def __init__(self, **kwargs):
+        super(SmokeScreen, self).__init__(**kwargs)
+        
+        # Vertical layout for the question
+        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+        layout.add_widget(Label(text="Do you drink smoke?", font_size=32))  # Title
+        
+        # Horizontal layout for buttons
+        layout2 = BoxLayout(orientation="horizontal", size_hint=(1, None), height=100, spacing=10)
+        
+        
+        # "Yes" button with oval shape
+        self.yes = Button(text="Yes", size_hint=(0.5, 1), background_normal='', background_color=(0.3, 0.6, 1, 1))
+        self.yes.radius = [50, 50, 50, 50]
+        self.yes.bind(on_press=self.go_to_eat_out)
+        layout2.add_widget(self.yes)
+        
+        # "No" button with oval shape
+        self.no = Button(text="No", size_hint=(0.5, 1), background_normal='', background_color=(1, 0.5, 0.5, 1))
+        self.no.radius = [50, 50, 50, 50]
+        self.no.bind(on_press=self.go_to_eat_out)
+        layout2.add_widget(self.no)
+        
+        # Add the question layout and button layout to the screen
+        layout.add_widget(layout2)
+        self.add_widget(layout)
+
+    def go_to_eat_out(self, instance):
+        self.manager.current = "eat_out"
+
+
+
+class EatOutScreen(Screen):
+    def __init__(self, **kwargs):
+        super(EatOutScreen, self).__init__(**kwargs)
+        
+        # Vertical layout for the question
+        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+        layout.add_widget(Label(text="Do you eat out often?", font_size=32))  # Title
+        
+        # Horizontal layout for buttons
+        layout2 = BoxLayout(orientation="horizontal", size_hint=(1, None), height=100, spacing=10)
+        
+        # "Yes" button with oval shape
+        self.yes = Button(text="Yes", size_hint=(0.5, 1), background_normal='', background_color=(0.3, 0.6, 1, 1))
+        self.yes.radius = [50, 50, 50, 50]
+        self.yes.bind(on_press=self.go_to_home)
+        layout2.add_widget(self.yes)
+        
+        # "No" button with oval shape
+        self.no = Button(text="No", size_hint=(0.5, 1), background_normal='', background_color=(1, 0.5, 0.5, 1))
+        self.no.radius = [50, 50, 50, 50]
+        self.no.bind(on_press=self.go_to_home)
+        layout2.add_widget(self.no)
+        
+        # Add the question layout and button layout to the screen
+        layout.add_widget(layout2)
+        self.add_widget(layout)
+
+    def go_to_home(self, instance):
+        self.manager.current = "home"
+
+
 
 
 
@@ -247,14 +412,10 @@ class LoginApp(App):
         sm.add_widget(WeeklySave(name = "save"))
         sm.add_widget(DayScreen(name="days"))        
         sm.add_widget(CoffeeScreen(name= "coffee"))
-        #sm.add_widget(SmokeScreen(name="smoke"))
+        sm.add_widget(SmokeScreen(name="smoke"))
+        sm.add_widget(EatOutScreen(name="eat_out"))        
+        #sm.add_widget(HomeScreen(name = "home_screen"))
 
-        """
-        sm.add_widget(EatOutScreen(name="eat_out"))
-        sm.add_widget(TransportScreen(name = "transport"))
-        sm.add_widget(WeeklyGoalScreen(name = "weekly_goal"))
-        sm.add_widget(HomeScreen(name = "home_screen"))
-        """
         
         return sm
 
